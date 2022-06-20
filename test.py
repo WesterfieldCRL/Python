@@ -1,9 +1,13 @@
-print("Hello World")
+from graphics import *
 
-val = input("Enter your value: ")
-print(val)
+window = GraphWin("Drawing Time", 800, 800)
 
-test = int(val)
+box = Rectangle(Point(10,10),Point(300,300))
 
-if val == 1:
-    print('success')
+box.draw(window)
+
+window.getMouse()
+
+box.move(100,0)
+
+window.getMouse()

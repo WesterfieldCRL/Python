@@ -5,12 +5,12 @@ yHeight = 500
 ballXSpeed = .05
 ballYSpeed = .01
 cpuYSpeed = .5
-keyPressedUp = False
-keyPressedDown = False
 key = ''
+end = False
 
 win = GraphWin("Pong", xHeight, yHeight)
 
+text = Text(Point(xHeight/2,yHeight/2),'Press the Spacebar to play again!')
 PaddleUser = Rectangle(Point(xHeight/20,yHeight/6), Point((xHeight/20)*2,(yHeight/6)*2))
 PaddleCPU = Rectangle(Point(xHeight-(xHeight/20),yHeight/6), Point(xHeight-((xHeight/20)*2),(yHeight/6)*2))
 Ball = Circle(Point(xHeight/2,yHeight/2),xHeight/40)
@@ -24,8 +24,6 @@ while True:
     if win.closed:
         exit()
     #check for balls collsion with sides
-    if Ball.getP1().getX() < 0 or Ball.getP2().getX() > xHeight:
-        ballXSpeed *= -1
     if Ball.getP1().getY() < 0 or Ball.getP2().getY() > xHeight:
         ballYSpeed *= -1
     #check for collision with cpu
@@ -55,6 +53,26 @@ while True:
     if PaddleUser.getP1().getY() < 0:
         PaddleUser.move(0,8)
 
+    #check for end condition
+    if Ball.getP1().getX() < 0:
+        Ball.move(xHeight/2,0)
+        end = True
+    if Ball.getP2().getX() > xHeight:
+        Ball.move(xHeight/-2,0)
+        end = True
+        
+
+    if end == True:
+        text.draw(win)
+        while key != 'space':
+            if win.closed:
+                exit()
+            key = win.checkKey()
+
+        text.undraw()
+        ballXSpeed = .05
+        ballYSpeed = .01
+        end = False
 
 
     Ball.move(ballXSpeed,ballYSpeed)
