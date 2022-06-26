@@ -3,13 +3,14 @@ from abc import ABC, abstractmethod
  
 pygame.init()
 
+blockWidth = 10
 
 class TetrisShape(ABC):
     def __init__(self, state, x, y):
         self.state = state
         self.x = x
         self.y = y
-        self.blocks = [pygame.Rect(0,0,10,10), pygame.Rect(0,0,10,10), pygame.Rect(0,0,10,10), pygame.Rect(0,0,10,10)]
+        self.blocks = [pygame.Rect(0,0,blockWidth,blockWidth), pygame.Rect(0,0,blockWidth,blockWidth), pygame.Rect(0,0,blockWidth,blockWidth), pygame.Rect(0,0,blockWidth,blockWidth)]
         self.bottomNum = 0
         self.wideLeft = 0
         self.wideRight = 0
@@ -28,33 +29,23 @@ class TetrisShape(ABC):
             return True
         else:
             return False
-    
-    def shiftDown(self):
-        retVal = []
-        for i in range(4):
-            retVal.append((self.blocks[i][0]+1, self.blocks[i][1]))
-        return retVal
 
-    def shiftLeft(self):
-        retVal = []
-        for i in range(4):
-            retVal.append((self.blocks[i][0], self.blocks[i][1]-1))
-        return retVal
-    def shiftRight(self):
-        retVal = []
-        for i in range(4):
-            retVal.append((self.blocks[i][0], self.blocks[i][1]+1))
-        return retVal
-    
     def overlaps(self, otherBlocks):
         for i in range(4):
             for j in range(4):
-                if (self.blocks[i][0] == otherBlocks[j][0]) and (self.blocks[i][1] == otherBlocks[j][1]):
+                if (otherBlocks[j].x >= self.blocks[i].x and otherBlocks[j].x < self.blocks[i].x + blockWidth) and (otherBlocks[j].y >= self.blocks[i].y and otherBlocks[j].y < self.blocks[i].y + blockWidth):
                     return True
         return False
 
-    def pieceOverlaps(self, otherPiece):
-        return self.overlaps(otherPiece.blocks)
+    def canShiftDown(self):
+        
+        return 1
+
+    def canShiftLeft(self):
+        return 1
+    
+    def canShiftRight(self):
+        return 1
 
     @abstractmethod
     def setup():
@@ -115,8 +106,6 @@ done = False
 test = pygame.Rect(30,30,60,60)
 
 pygame.draw.rect(screen, (0,0,255), test)
-
-
 
 while not done:
 
