@@ -1,10 +1,9 @@
-import pygame
 #from abc import ABC, abstractmethod
 import PeterFoolModule
 import time
 import os
 import random
-from turtle import up
+#from turtle import up
 import colorama
 import keyboard
 import threading
@@ -135,6 +134,7 @@ def canMoveLeft(piece):
 def canMoveRight(piece):
     shiftedBlocks = piece.shiftRight()
 
+    #the last block is the only falling one
     for frozenPieces in gamePieces[:-1]:
         if (frozenPieces.overlaps(shiftedBlocks)):
             return False
