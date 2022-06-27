@@ -20,12 +20,17 @@ class TetrisShape(ABC):
         self.setup()
     
     def fall(self, screenHeight):
+        aboveBottom = False
         for i in range(4):
             if self.blocks[i].y < screenHeight:
-                self.y += 10
-                self.setup()
-                return True
-        return False
+                aboveBottom = True
+                print(self.y)
+        if aboveBottom:
+            self.y += 10
+            self.setup()
+            return True
+        else:
+            return False
 
     #checks if a pixel of the other block is inside the block getting checked
     #the optional values are for the canShift functions
