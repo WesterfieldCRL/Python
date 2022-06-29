@@ -20,11 +20,10 @@ class TetrisShape(ABC):
         self.setup()
     
     def fall(self, screenHeight):
-        aboveBottom = False
+        aboveBottom = True
         for i in range(4):
-            if self.blocks[i].y < screenHeight:
-                aboveBottom = True
-                print(self.y)
+            if self.blocks[i].y + 10 + blockWidth > screenHeight:
+                aboveBottom = False
         if aboveBottom:
             self.y += 10
             self.setup()
@@ -43,23 +42,47 @@ class TetrisShape(ABC):
 
     #all the shift functions just call overlaps, but add however far in the x or y direction they are shifted
     #the for loop loops through all shapes in the provided array except for the last one because peter assures me the last one will always be the only falling one
-    def canShiftDown(self, gamePieces):
-        for frozenPieces in gamePieces[:-1]:
-            if frozenPieces.overlaps(self,0,10):
-                return False
-        return True
 
-    def canShiftLeft(self, gamePieces):
+    def ShiftLeft(self,gamePieces):
+        canShift = True
         for frozenPieces in gamePieces[:-1]:
             if frozenPieces.overlaps(self,-10):
-                return False
-        return True
-    
-    def canShiftRight(self, gamePieces):
+                canShift = False
+        if canShift:
+            self.x -= 10
+            self.setup()
+
+
+    def ShiftRight(self,gamePieces):
+        canShift = True
         for frozenPieces in gamePieces[:-1]:
             if frozenPieces.overlaps(self,10):
-                return False
-        return True
+                canShift = False
+        if canShift:
+            self.x += 10
+            self.setup()
+
+    def ShiftDown(self,gamePieces):
+        canShift = True
+        for frozenPieces in gamePieces[:-1]:
+            if frozenPieces.overlaps(self,0,10):
+                canShift = False
+        if canShift:
+            self.y+=10
+            self.setup()
+
+    def ShiftUp(self,gamePieces):
+        canShift = True
+        for frozenPieces in gamePieces[:-1]:
+            if frozenPieces.overlaps(self,0,-10):
+                canShift = False
+        if canShift:
+            self.y -= 10
+            self.setup()
+
+    def DrawShape(self,screen,color):
+        for i in range(4):
+            pygame.draw.rect(screen, color,self.blocks[i])
 
     @abstractmethod
     def setup():
