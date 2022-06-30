@@ -49,6 +49,7 @@ start_time = time.time()
 
 summon()
 
+#game loop
 while not gameOver:
 
     #gets input
