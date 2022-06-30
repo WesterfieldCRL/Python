@@ -77,13 +77,16 @@ class TetrisShape(ABC):
             self.x += moveSpeed
             self.setup()
     #might be causing collision problems
-    def ShiftDown(self,gamePieces):
-        canShift = True
+    def ShiftDown(self,gamePieces, screenHeight):
+        canFall = True
+        for i in range(4):
+            if self.blocks[i].y + moveSpeed + blockWidth > screenHeight:
+                canFall = False
         for frozenPieces in gamePieces[:-1]:
             if self.overlaps(frozenPieces.blocks,0,moveSpeed):
-                canShift = False
-        if canShift:
-            self.y+=moveSpeed
+                canFall = False
+        if canFall:
+            self.y += moveSpeed
             self.setup()
 
     #this one doesnt need to exist

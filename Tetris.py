@@ -52,6 +52,14 @@ summon()
 #game loop
 while not gameOver:
 
+    #loops every .1 seconds, causes the piece to fall
+    if time.time() - start_time > .1:
+        start_time = time.time()
+        if not gamePieces[-1].fall(screenHeight,gamePieces):
+            summon()
+            if not gamePieces[-1].fall(screenHeight,gamePieces):
+                gameOver = True
+
     #gets input
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -65,15 +73,9 @@ while not gameOver:
                 gamePieces[-1].rotate()
             #currently does not work when held
             if event.key == pygame.K_DOWN:
-                gamePieces[-1].ShiftDown(gamePieces[:-1])
+                gamePieces[-1].ShiftDown(gamePieces[:-1], screenHeight)
         
-    #loops every .1 seconds, causes the piece to fall
-    if time.time() - start_time > .1:
-        start_time = time.time()
-        if not gamePieces[-1].fall(screenHeight,gamePieces):
-            summon()
-            if not gamePieces[-1].fall(screenHeight,gamePieces):
-                gameOver = True
+    
 
 
     #clears the screen
