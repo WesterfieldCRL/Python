@@ -1,38 +1,46 @@
 import pygame
 from abc import ABC, abstractmethod
 
-
+moveSpeed = 10
 blockWidth = 10
 
 class TetrisShape(ABC):
-    def __init__(self, state, x, y):
+    def __init__(self, x, y, state, color):
         self.state = state
         #x and y coords are for the rotation point of the piece
         self.x = x
         self.y = y
+        self.color = color
+        #each piece is made up of 4 rectangles
         self.blocks = [pygame.Rect(0,0,blockWidth,blockWidth), pygame.Rect(0,0,blockWidth,blockWidth), pygame.Rect(0,0,blockWidth,blockWidth), pygame.Rect(0,0,blockWidth,blockWidth)]
         self.isFalling = True
 
+    #NOT FINISHED, changes state of piece
+    #all pieces' states are defined in the individual declerations
     def rotate(self):
         self.state += 1
         if self.state > 3:
             self.state = 0
         self.setup()
     
-    def fall(self, screenHeight):
-        aboveBottom = True
+    #if the piece can move down it gets moved down. Returns true if it can fall, otherwise false
+    def fall(self, screenHeight, gamePieces):
+        canFall = True
         for i in range(4):
-            if self.blocks[i].y + 10 + blockWidth > screenHeight:
-                aboveBottom = False
-        if aboveBottom:
-            self.y += 10
+            if self.blocks[i].y + moveSpeed + blockWidth > screenHeight:
+                canFall = False
+        for frozenPieces in gamePieces[:-1]:
+            if self.overlaps(frozenPieces.blocks,0,moveSpeed):
+                canFall = False
+        if canFall:
+            self.y += moveSpeed
             self.setup()
             return True
         else:
             return False
 
     #checks if a pixel of the other block is inside the block getting checked
-    #the optional values are for the canShift functions
+    #the optional values are for the canShift functions, just shifts the detection by the specifed amount
     def overlaps(self, otherBlocks, xShift = 0, yShift = 0):
         for i in range(4):
             for j in range(4):
@@ -42,47 +50,56 @@ class TetrisShape(ABC):
 
     #all the shift functions just call overlaps, but add however far in the x or y direction they are shifted
     #the for loop loops through all shapes in the provided array except for the last one because peter assures me the last one will always be the only falling one
+    #the shift left and right functions have additional dectection for the sides
 
     def ShiftLeft(self,gamePieces):
         canShift = True
         for frozenPieces in gamePieces[:-1]:
-            if frozenPieces.overlaps(self,-10):
+            if self.overlaps(frozenPieces.blocks,-moveSpeed):
+                canShift = False
+        for i in range(4):
+            if self.blocks[i].x - moveSpeed < 0:
                 canShift = False
         if canShift:
-            self.x -= 10
+            self.x -= moveSpeed
             self.setup()
 
 
-    def ShiftRight(self,gamePieces):
+    def ShiftRight(self,gamePieces, screenWidth):
         canShift = True
         for frozenPieces in gamePieces[:-1]:
-            if frozenPieces.overlaps(self,10):
+            if self.overlaps(frozenPieces.blocks,moveSpeed):
+                canShift = False
+        for i in range(4):
+            if self.blocks[i].x + moveSpeed + blockWidth > screenWidth:
                 canShift = False
         if canShift:
-            self.x += 10
+            self.x += moveSpeed
             self.setup()
 
     def ShiftDown(self,gamePieces):
         canShift = True
         for frozenPieces in gamePieces[:-1]:
-            if frozenPieces.overlaps(self,0,10):
+            if self.overlaps(frozenPieces.blocks,0,moveSpeed):
                 canShift = False
         if canShift:
-            self.y+=10
+            self.y+=moveSpeed
             self.setup()
 
+    #this one doesnt need to exist
     def ShiftUp(self,gamePieces):
         canShift = True
         for frozenPieces in gamePieces[:-1]:
-            if frozenPieces.overlaps(self,0,-10):
+            if self.overlaps(frozenPieces.blocks,0,-moveSpeed):
                 canShift = False
         if canShift:
-            self.y -= 10
+            self.y -= moveSpeed
             self.setup()
 
-    def DrawShape(self,screen,color):
+    #needed for pygame, draws loops through the rectangles and draws each box of the piece
+    def DrawShape(self,screen):
         for i in range(4):
-            pygame.draw.rect(screen, color,self.blocks[i])
+            pygame.draw.rect(screen, self.color,self.blocks[i])
 
     @abstractmethod
     def setup():
@@ -90,9 +107,10 @@ class TetrisShape(ABC):
 
 
 class Line(TetrisShape):
-    def __init__(self, x, y, state):
+    def __init__(self, x, y, state, color):
         self.x = x
         self.y = y
+        self.color = color
         self.blocks = [pygame.Rect(0,0,blockWidth,blockWidth), pygame.Rect(0,0,blockWidth,blockWidth), pygame.Rect(0,0,blockWidth,blockWidth), pygame.Rect(0,0,blockWidth,blockWidth)]
         self.state = state
         self.isFalling = True
@@ -170,9 +188,10 @@ class Line(TetrisShape):
             self.blocks[3].y = self.y - blockWidth
 
 class Jshape(TetrisShape):
-    def __init__(self, x, y, state):
+    def __init__(self, x, y, state, color):
         self.x = x
         self.y = y
+        self.color = color
         self.blocks = [pygame.Rect(0,0,blockWidth,blockWidth), pygame.Rect(0,0,blockWidth,blockWidth), pygame.Rect(0,0,blockWidth,blockWidth), pygame.Rect(0,0,blockWidth,blockWidth)]
         self.state = state
         self.setup()
@@ -246,9 +265,10 @@ class Jshape(TetrisShape):
             self.blocks[3].y = self.y + blockWidth
 
 class Lshape(TetrisShape):
-    def __init__(self, x, y, state):
+    def __init__(self, x, y, state, color):
         self.x = x
         self.y = y
+        self.color = color
         self.blocks = [pygame.Rect(0,0,blockWidth,blockWidth), pygame.Rect(0,0,blockWidth,blockWidth), pygame.Rect(0,0,blockWidth,blockWidth), pygame.Rect(0,0,blockWidth,blockWidth)]
         self.state = state
         self.setup()
@@ -322,10 +342,11 @@ class Lshape(TetrisShape):
             self.blocks[3].y = self.y + blockWidth
 
 class Oshape(TetrisShape):
-    def __init__(self, x, y, state):
+    def __init__(self, x, y, state, color):
         self.state = state
         self.x = x
         self.y = y
+        self.color = color
         self.blocks = [pygame.Rect(0,0,blockWidth,blockWidth), pygame.Rect(0,0,blockWidth,blockWidth), pygame.Rect(0,0,blockWidth,blockWidth), pygame.Rect(0,0,blockWidth,blockWidth)]
         self.setup()
         self.isFalling = True
@@ -347,9 +368,10 @@ class Oshape(TetrisShape):
         self.blocks[3].y = self.y
 
 class Sshape(TetrisShape):
-    def __init__(self, x, y, state):
+    def __init__(self, x, y, state, color):
         self.x = x
         self.y = y
+        self.color = color
         self.blocks = [pygame.Rect(0,0,blockWidth,blockWidth), pygame.Rect(0,0,blockWidth,blockWidth), pygame.Rect(0,0,blockWidth,blockWidth), pygame.Rect(0,0,blockWidth,blockWidth)]
         self.state = state
         self.setup()
@@ -425,9 +447,10 @@ class Sshape(TetrisShape):
 
 
 class Tshape(TetrisShape):
-    def __init__(self, x, y, state):
+    def __init__(self, x, y, state, color):
         self.x = x
         self.y = y
+        self.color = color
         self.blocks = [pygame.Rect(0,0,blockWidth,blockWidth), pygame.Rect(0,0,blockWidth,blockWidth), pygame.Rect(0,0,blockWidth,blockWidth), pygame.Rect(0,0,blockWidth,blockWidth)]
         self.state = state
         self.setup()
@@ -502,9 +525,10 @@ class Tshape(TetrisShape):
 
 
 class Zshape(TetrisShape):
-    def __init__(self, x, y, state):
+    def __init__(self, x, y, state, color):
         self.x = x
         self.y = y
+        self.color = color
         self.blocks = [pygame.Rect(0,0,blockWidth,blockWidth), pygame.Rect(0,0,blockWidth,blockWidth), pygame.Rect(0,0,blockWidth,blockWidth), pygame.Rect(0,0,blockWidth,blockWidth)]
         self.state = state
         self.setup()
