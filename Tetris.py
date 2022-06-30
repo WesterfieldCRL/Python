@@ -24,6 +24,7 @@ gameOver = False
 
 gamePieces = []
 
+#this is virtually unchanged from the original code, just added color
 def summon():
     rand = random.randint(1, 7) 
     if rand == True:
@@ -44,17 +45,16 @@ def summon():
     gamePieces.append(shape)
 
 screen = pygame.display.set_mode((screenWidth, screenHeight))
-
-done = False
 start_time = time.time()
 
 summon()
 
 while not gameOver:
 
+    #gets input
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-                done = True
+                gameOver = True
         if event.type == pygame.KEYDOWN: 
             if event.key == pygame.K_RIGHT:
                 gamePieces[-1].ShiftRight(gamePieces[:-1], screenWidth)
@@ -62,10 +62,11 @@ while not gameOver:
                 gamePieces[-1].ShiftLeft(gamePieces[:-1])
             if event.key == pygame.K_UP:
                 gamePieces[-1].rotate()
+            #currently does not work when held
             if event.key == pygame.K_DOWN:
                 gamePieces[-1].ShiftDown(gamePieces[:-1])
         
-
+    #loops every .1 seconds, causes the piece to fall
     if time.time() - start_time > .1:
         start_time = time.time()
         if not gamePieces[-1].fall(screenHeight,gamePieces):
@@ -74,16 +75,19 @@ while not gameOver:
                 gameOver = True
 
 
-    
+    #clears the screen
     screen.fill((255,255,255))
     
+    #draws the game pieces
     for i in gamePieces[:]:
             i.DrawShape(screen)
+    #draws a grid on the screen
     for x in range(0,screenWidth, blockWidth):
         pygame.draw.rect(screen,(0,0,0), pygame.Rect(x,0,1,screenHeight))
     for y in range(0,screenHeight, blockWidth):
         pygame.draw.rect(screen,(0,0,0), pygame.Rect(0,y,screenWidth,1))
 
+    #idk what this does but its necessary
     pygame.display.flip()
-    
+
 print('Done')

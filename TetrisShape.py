@@ -76,7 +76,7 @@ class TetrisShape(ABC):
         if canShift:
             self.x += moveSpeed
             self.setup()
-
+    #might be causing collision problems
     def ShiftDown(self,gamePieces):
         canShift = True
         for frozenPieces in gamePieces[:-1]:
